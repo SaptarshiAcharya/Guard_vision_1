@@ -1,0 +1,179 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote CCTV Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button.stop {
+            background-color: #f44336;
+        }
+        .video-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #videoFeed {
+            max-width: 100%;
+            border-radius: 4px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Remote CCTV Control</h1>
+        <div class="form-group">
+            <label for="videoUrl">IP Address:</label>
+            <input type="text" id="videoUrl" placeholder="Enter IP address">
+        </div>
+        <div class="form-group">
+            <label for="email">Email for Alerts:</label>
+            <input type="email" id="email" placeholder="Enter email address">
+        </div>
+        <div class="form-group">
+            <label for="mode">Detection Mode:</label>
+            <select id="mode">
+                <option value="Normal CCTV">Normal CCTV</option>
+                <option value="Human Detection">Human Detection</option>
+                <option value="Animal Detection">Animal Detection</option>
+                <option value="Both">Both</option>
+            </select>
+        </div>
+        <button id="startBtn">Start Surveillance</button>
+        <button id="stopBtn" class="stop" disabled>Stop Surveillance</button>
+        <div class="status" id="status"></div>
+        <div class="video-container">
+            <img id="videoFeed" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const videoFeed = document.getElementById('videoFeed');
+        const status = document.getElementById('status');
+
+        async function startSurveillance() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const email = document.getElementById('email').value;
+            const mode = document.getElementById('mode').value;
+
+            try {
+                const response = await fetch('/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ video_url: videoUrl, recipient_email: email, mode: mode }),
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    videoFeed.style.display = 'block';
+                    videoFeed.src = '/video_feed';
+                    status.style.display = 'block';
+                    status.textContent = 'Surveillance active';
+                    status.style.backgroundColor = '#e8f5e9';
+                } else {
+                    status.style.display = 'block';
+                    status.textContent = 'Failed to start surveillance';
+                    status.style.backgroundColor = '#ffebee';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                status.style.display = 'block';
+                status.textContent = 'Error starting surveillance';
+                status.style.backgroundColor = '#ffebee';
+            }
+        }
+
+        async function stopSurveillance() {
+            try {
+                const response = await fetch('/stop', {
+                    method: 'POST',
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    videoFeed.style.display = 'none';
+                    status.style.display = 'block';
+                    status.textContent = 'Surveillance stopped';
+                    status.style.backgroundColor = '#ffebee';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        startBtn.addEventListener('click', startSurveillance);
+        stopBtn.addEventListener('click', stopSurveillance);
+
+        // Check initial status
+        fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.running) {
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    videoFeed.style.display = 'block';
+                    videoFeed.src = '/video_feed';
+                    status.style.display = 'block';
+                    status.textContent = 'Surveillance active';
+                    status.style.backgroundColor = '#e8f5e9';
+                }
+            });
+    </script>
+</body>
+</html>

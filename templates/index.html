@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CCTV Surveillance</title>
+</head>
+<body>
+    <h1>CCTV Surveillance Feed</h1>
+    <!-- The form to start surveillance -->
+    <form action="/start" method="post">
+        <label for="video_url">Video URL (leave empty for local webcam):</label>
+        <input type="text" id="video_url" name="video_url" placeholder="Optional">
+        <br>
+        <label for="email">Alert Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="mode">Mode:</label>
+        <select id="mode" name="mode">
+            <option value="Both">Both</option>
+            <option value="Human Detection">Human Detection</option>
+            <option value="Animal Detection">Animal Detection</option>
+            <option value="Normal CCTV">Normal CCTV</option>
+        </select>
+        <br>
+        <button type="submit">Start Surveillance</button>
+    </form>
+
+    <!-- The form to stop surveillance -->
+    <form action="/stop" method="post" style="margin-top:20px;">
+        <button type="submit">Stop Surveillance</button>
+    </form>
+
+    <!-- Display the video feed -->
+    <div style="margin-top:20px;">
+        <img src="{{ url_for('video_feed') }}" alt="Video Feed" style="width:640px; height:480px;">
+    </div>
+</body>
+</html>
