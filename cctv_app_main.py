@@ -182,8 +182,8 @@ class CCTVSystem:
                 logger.info("Email limit reached; waiting for cooldown.")
 
     def _send_email(self, intrusion_type):
-        sender_email = "saptarshiironman4512@gmail.com"
-        sender_password = "tldulfbbhlvhliuu"
+        sender_email = "YOUR_EMAIL"
+        sender_password = "YOUR_PASSWORD"
 
         msg = EmailMessage()
         msg.set_content(f"Intrusion detected: {intrusion_type}")
