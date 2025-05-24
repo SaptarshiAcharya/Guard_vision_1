@@ -48,7 +48,7 @@ Edit
 
 ### 1. Clone the Repository
 
-git clone https://github.com/yourusername/cctv-surveillance-system.git
+git clone 
 cd cctv-surveillance-system
 
 shell
